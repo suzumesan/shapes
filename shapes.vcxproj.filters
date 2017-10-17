@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="imgui">
@@ -24,6 +24,9 @@
     <ClInclude Include="src\imgui\stb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="src\shader_loader.h" />
+    <ClInclude Include="src\d3dcontext.h" />
+    <ClInclude Include="src\app.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\imgui\imgui.cpp">
@@ -36,5 +39,8 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\shader_loader.cpp" />
+    <ClCompile Include="src\d3dcontext.cpp" />
+    <ClCompile Include="src\app.cpp" />
   </ItemGroup>
 </Project>
