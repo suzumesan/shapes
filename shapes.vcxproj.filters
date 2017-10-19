@@ -24,9 +24,10 @@
     <ClInclude Include="src\imgui\stb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="src\shader_loader.h" />
-    <ClInclude Include="src\d3dcontext.h" />
     <ClInclude Include="src\app.h" />
+    <ClInclude Include="src\shader.h" />
+    <ClInclude Include="src\renderer.h" />
+    <ClInclude Include="src\irenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\imgui\imgui.cpp">
@@ -39,8 +40,8 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\shader_loader.cpp" />
-    <ClCompile Include="src\d3dcontext.cpp" />
     <ClCompile Include="src\app.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\renderer.cpp" />
   </ItemGroup>
 </Project>

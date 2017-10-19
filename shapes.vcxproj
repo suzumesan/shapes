@@ -187,8 +187,9 @@ xcopy /Y /D "libs\bin\*.dll" "bin\x64_Release"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\app.h" />
-    <ClInclude Include="src\d3dcontext.h" />
-    <ClInclude Include="src\shader_loader.h" />
+    <ClInclude Include="src\irenderer.h" />
+    <ClInclude Include="src\renderer.h" />
+    <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />
     <ClInclude Include="src\imgui\imgui_internal.h" />
@@ -198,8 +199,8 @@ xcopy /Y /D "libs\bin\*.dll" "bin\x64_Release"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
-    <ClCompile Include="src\d3dcontext.cpp" />
-    <ClCompile Include="src\shader_loader.cpp" />
+    <ClCompile Include="src\renderer.cpp" />
+    <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />

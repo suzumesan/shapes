@@ -1,11 +1,11 @@
 #pragma once
 
-class D3DContext;
+class Renderer;
 struct SDL_Window;
 
 class App
 {
-	D3DContext* m_context;
+	Renderer* m_renderer;
 	SDL_Window* m_window;
 
 	void update();

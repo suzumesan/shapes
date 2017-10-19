@@ -2,10 +2,10 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
-#include "d3dcontext.h"
+#include "renderer.h"
 
 App::App() :
-	m_context(nullptr),
+	m_renderer(nullptr),
 	m_window(nullptr)
 {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
@@ -13,10 +13,10 @@ App::App() :
 
 App::~App()
 {
-	if (m_context)
+	if (m_renderer)
 	{
-		delete m_context;
-		m_context = nullptr;
+		delete m_renderer;
+		m_renderer = nullptr;
 	}
 
 	if (m_window)
@@ -36,8 +36,8 @@ void App::start()
 	SDL_VERSION(&wmInfo.version);
 	SDL_GetWindowWMInfo(m_window, &wmInfo);
 
-	m_context = new D3DContext;
-	m_context->create(wmInfo.info.win.window);
+	m_renderer = new Renderer;
+	m_renderer->create(wmInfo.info.win.window);
 
 	update();
 }

@@ -1,15 +1,16 @@
-#include "shader_loader.h"
+#include "shader.h"
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
+#include <cassert>
 
 namespace
 {
 	static constexpr bool DEBUG_COMPILE = false;
 	static constexpr bool DEBUG_WARNING_AS_ERROR = false;
 
-	ID3DBlob* CompileShader(
-		const wchar_t* path,
+	ID3DBlob* compileShader(
+		const std::wstring& path,
 		const char* entryPoint,
 		const char* target)
 	{
@@ -21,7 +22,7 @@ namespace
 		if (DEBUG_WARNING_AS_ERROR)
 			flags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
 		HRESULT hr = D3DCompileFromFile(
-			path,
+			path.c_str(),
 			nullptr,
 			nullptr,
 			entryPoint,
@@ -44,54 +45,82 @@ namespace
 }
 
 
-void CompileVS(
-	OrbD3D11Shader& shader,
-	const wchar_t* path,
-	OrbD3D11Wrapper& wrapper,
-	const OrbD3D11ShaderLayoutDesc& desc
-)
+void Shader::compileVS(const std::wstring& path)
 {
 	static const char entryPoint[] = "main";
 	static const char target[] = "vs_5_0";
-	ID3DBlob* blob = CompileShader(path, entryPoint, target);
-	auto hr = wrapper.Device->CreateVertexShader(
+	ID3DBlob* blob = compileShader(path + L".vs", entryPoint, target);
+	auto hr = m_device->CreateVertexShader(
 		blob->GetBufferPointer(),
 		blob->GetBufferSize(),
 		nullptr,
-		&shader.VS);
+		&m_vs);
 
 	assert(SUCCEEDED(hr));
 
-	hr = wrapper.Device->CreateInputLayout(
-		desc.Desc,
-		desc.ElementCount,
-		blob->GetBufferPointer(),
-		blob->GetBufferSize(),
-		&shader.InputLayout
-	);
+	// TODO: reflection
+	//hr = m_device->CreateInputLayout(
+	//	desc.Desc,
+	//	desc.ElementCount,
+	//	blob->GetBufferPointer(),
+	//	blob->GetBufferSize(),
+	//	&shader.InputLayout
+	//);
 
 	assert(SUCCEEDED(hr));
 
 	blob->Release();
 }
 
-void CompilePS(
-	OrbD3D11Shader& shader,
-	const wchar_t* path,
-	OrbD3D11Wrapper& wrapper
-)
+void Shader::compilePS(const std::wstring& path)
 {
 	static const char entryPoint[] = "main";
 	static const char target[] = "ps_5_0";
-	ID3DBlob* blob = CompileShader(path, entryPoint, target);
-	auto hr = wrapper.Device->CreatePixelShader(
+	ID3DBlob* blob = compileShader(path, entryPoint, target);
+	auto hr = m_device->CreatePixelShader(
 		blob->GetBufferPointer(),
 		blob->GetBufferSize(),
 		nullptr,
-		&shader.PS);
+		&m_ps);
 
 	assert(SUCCEEDED(hr));
 
 	blob->Release();
 }
 
+Shader::Shader(ID3D11Device* device) :
+	m_device(device),
+	m_vs(nullptr),
+	m_ps(nullptr),
+	m_il(nullptr)
+{
+}
+
+Shader::~Shader()
+{
+	m_device = nullptr;
+
+	if (m_vs)
+	{
+		m_vs->Release();
+		m_vs = nullptr;
+	}
+
+	if (m_ps)
+	{
+		m_ps->Release();
+		m_ps = nullptr;
+	}
+
+	if (m_il)
+	{
+		m_il->Release();
+		m_il = nullptr;
+	}
+}
+
+void Shader::compile(const std::wstring& path)
+{
+	compileVS(path);
+	compilePS(path);
+}

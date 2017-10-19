@@ -1,4 +1,4 @@
-#include "d3dcontext.h"
+#include "renderer.h"
 
 namespace
 {
@@ -47,7 +47,7 @@ namespace
 	}
 }
 
-D3DContext::D3DContext() :
+Renderer::Renderer() :
 	m_device(nullptr),
 	m_swapChain(nullptr),
 	m_deviceContext(nullptr),
@@ -56,12 +56,12 @@ D3DContext::D3DContext() :
 
 }
 
-D3DContext::~D3DContext()
+Renderer::~Renderer()
 {
 	cleanup();
 }
 
-void D3DContext::create(HWND handle)
+void Renderer::create(HWND handle)
 {
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = GetSwapChainDesc(handle);
 
@@ -91,9 +91,12 @@ void D3DContext::create(HWND handle)
 
 	SetDefaultViewport(m_deviceContext);
 	SetDefaultRasterSettings(m_device, m_deviceContext);
+
+	m_basicShader = new Shader(m_device);
+	m_basicShader->compile(L"content/simple");
 }
 
-void D3DContext::cleanup()
+void Renderer::cleanup()
 {
 	if (m_device)
 	{
@@ -120,7 +123,7 @@ void D3DContext::cleanup()
 	}
 }
 
-void D3DContext::render()
+void Renderer::render()
 {
 	FLOAT f[4] = { 0.678f, 0.847f, 0.902f, 1 };
 	m_deviceContext->ClearRenderTargetView(m_renderTarget, f);
