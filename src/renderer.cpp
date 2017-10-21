@@ -92,12 +92,17 @@ void Renderer::create(HWND handle)
 	SetDefaultViewport(m_deviceContext);
 	SetDefaultRasterSettings(m_device, m_deviceContext);
 
-	m_basicShader = new Shader(m_device);
-	m_basicShader->compile(L"content/simple");
+	m_material = new SimpleMaterial(m_device);
 }
 
 void Renderer::cleanup()
 {
+	if (m_material)
+	{
+		delete m_material;
+		m_material = nullptr;
+	}
+
 	if (m_device)
 	{
 		m_device->Release();

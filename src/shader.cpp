@@ -2,20 +2,65 @@
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
-#include <cassert>
+#include <cmath>
 
 namespace
 {
+	class FormatFactory
+	{
+		struct Type
+		{
+			DXGI_FORMAT formats[3];
+			UINT formatSize;
+		};
+
+		Type m_types[4];
+
+	public:
+		FormatFactory()
+		{
+			m_types[0].formats[0] = DXGI_FORMAT::DXGI_FORMAT_R32_UINT;
+			m_types[0].formats[1] = DXGI_FORMAT::DXGI_FORMAT_R32_SINT;
+			m_types[0].formats[2] = DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+
+			m_types[1].formats[0] = DXGI_FORMAT::DXGI_FORMAT_R32G32_UINT;
+			m_types[1].formats[1] = DXGI_FORMAT::DXGI_FORMAT_R32G32_SINT;
+			m_types[1].formats[2] = DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT;
+
+			m_types[2].formats[0] = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_UINT;
+			m_types[2].formats[1] = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_SINT;
+			m_types[2].formats[2] = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
+
+			m_types[3].formats[0] = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_UINT;
+			m_types[3].formats[1] = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_SINT;
+			m_types[3].formats[2] = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
+		}
+
+		DXGI_FORMAT getFormatForDesc(const D3D11_SIGNATURE_PARAMETER_DESC& desc) const
+		{
+			BYTE msb = static_cast<BYTE>(log2(desc.Mask));
+			return m_types[msb].formats[desc.ComponentType - 1];
+		}
+
+		UINT getSizeForDesc(const D3D11_SIGNATURE_PARAMETER_DESC& desc) const
+		{
+			BYTE msb = static_cast<BYTE>(log2(desc.Mask));
+			return msb + 1;
+		}
+	};
+
 	static constexpr bool DEBUG_COMPILE = false;
 	static constexpr bool DEBUG_WARNING_AS_ERROR = false;
+	static constexpr size_t INPUT_ELEMENT_DESC_SIZE = 8;
+	static const FormatFactory s_formatFactory;
 
 	ID3DBlob* compileShader(
 		const std::wstring& path,
 		const char* entryPoint,
 		const char* target)
 	{
-		ID3DBlob* code;
-		ID3DBlob* errorMsgs;
+		ID3DBlob* code = nullptr;
+		ID3DBlob* errorMsgs = nullptr;
 		UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
 		if (DEBUG_COMPILE)
 			flags |= D3DCOMPILE_DEBUG;
@@ -35,9 +80,8 @@ namespace
 
 		if (errorMsgs != nullptr)
 		{
-			OutputDebugString((wchar_t*)errorMsgs->GetBufferPointer());
+			OutputDebugStringA((char*)errorMsgs->GetBufferPointer());
 			errorMsgs->Release();
-			assert(FAILED(hr));
 		}
 
 		return code;
@@ -56,19 +100,43 @@ void Shader::compileVS(const std::wstring& path)
 		nullptr,
 		&m_vs);
 
-	assert(SUCCEEDED(hr));
+	ID3D11ShaderReflection* reflector = nullptr;
+	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(),
+		IID_ID3D11ShaderReflection, (void**)&reflector);
 
-	// TODO: reflection
-	//hr = m_device->CreateInputLayout(
-	//	desc.Desc,
-	//	desc.ElementCount,
-	//	blob->GetBufferPointer(),
-	//	blob->GetBufferSize(),
-	//	&shader.InputLayout
-	//);
+	D3D11_SHADER_DESC shaderDesc;
+	reflector->GetDesc(&shaderDesc);
 
-	assert(SUCCEEDED(hr));
+	const UINT elementCount = shaderDesc.InputParameters;
+	D3D11_INPUT_ELEMENT_DESC elementDescArr[INPUT_ELEMENT_DESC_SIZE];
+	UINT alignedTotalOffset = 0;
 
+	for (UINT paramIdx = 0; paramIdx < elementCount; ++paramIdx)
+	{
+		D3D11_SIGNATURE_PARAMETER_DESC signature;
+		reflector->GetInputParameterDesc(paramIdx, &signature);
+
+		D3D11_INPUT_ELEMENT_DESC& elementDesc = elementDescArr[paramIdx];
+		elementDesc.SemanticName = signature.SemanticName;
+		elementDesc.SemanticIndex = signature.SemanticIndex;
+		elementDesc.Format = s_formatFactory.getFormatForDesc(signature);
+		elementDesc.InputSlot = 0;
+		elementDesc.AlignedByteOffset = alignedTotalOffset;
+		elementDesc.InputSlotClass = D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA;
+		elementDesc.InstanceDataStepRate = 0;
+
+		alignedTotalOffset += s_formatFactory.getSizeForDesc(signature);
+	}
+
+	hr = m_device->CreateInputLayout(
+		elementDescArr,
+		elementCount,
+		blob->GetBufferPointer(),
+		blob->GetBufferSize(),
+		&m_il
+	);
+
+	reflector->Release();
 	blob->Release();
 }
 
@@ -76,14 +144,12 @@ void Shader::compilePS(const std::wstring& path)
 {
 	static const char entryPoint[] = "main";
 	static const char target[] = "ps_5_0";
-	ID3DBlob* blob = compileShader(path, entryPoint, target);
+	ID3DBlob* blob = compileShader(path + L".ps", entryPoint, target);
 	auto hr = m_device->CreatePixelShader(
 		blob->GetBufferPointer(),
 		blob->GetBufferSize(),
 		nullptr,
 		&m_ps);
-
-	assert(SUCCEEDED(hr));
 
 	blob->Release();
 }

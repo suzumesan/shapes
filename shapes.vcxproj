@@ -196,6 +196,7 @@ xcopy /Y /D "libs\bin\*.dll" "bin\x64_Release"</Command>
     <ClInclude Include="src\imgui\stb_rect_pack.h" />
     <ClInclude Include="src\imgui\stb_textedit.h" />
     <ClInclude Include="src\imgui\stb_truetype.h" />
+    <ClInclude Include="src\simple_material.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
@@ -205,6 +206,7 @@ xcopy /Y /D "libs\bin\*.dll" "bin\x64_Release"</Command>
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\simple_material.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

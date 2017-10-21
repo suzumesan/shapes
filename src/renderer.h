@@ -1,6 +1,8 @@
 #pragma once
+#include <DirectXMath.h>
 #include "irenderer.h"
-#include "shader.h"
+#include "simple_material.h"
+
 
 class Renderer final : public IRenderer
 {
@@ -9,7 +11,7 @@ class Renderer final : public IRenderer
 	ID3D11DeviceContext* m_deviceContext;
 	ID3D11RenderTargetView* m_renderTarget;
 
-	Shader* m_basicShader;
+	SimpleMaterial* m_material;
 
 public:
 	Renderer();
