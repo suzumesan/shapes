@@ -60,10 +60,13 @@ void SimpleMaterial::begin()
 
 void SimpleMaterial::render(const DirectX::XMMATRIX& worldMat, const Model& model)
 {
-	//auto devCtx = deviceContext();
-	//auto vb = model.vb();
-	//devCtx->Map()
-	//devCtx->IASetVertexBuffers(0, 1, &vb, nullptr, nullptr);
+	ID3D11DeviceContext* devCtx = deviceContext();
+	ID3D11Buffer* vb = model.vb();
+	UINT stride = model.stride();
+	UINT offset = 0;
+	devCtx->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+	devCtx->IASetIndexBuffer(model.ib(), DXGI_FORMAT_R32_UINT, 0);
+	devCtx->DrawIndexed(model.indexCount(), 0, 0);
 }
 
 void SimpleMaterial::end()

@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+using namespace DirectX;
+
 namespace
 {
 	DXGI_SWAP_CHAIN_DESC GetSwapChainDesc(HWND handle)
@@ -144,9 +146,11 @@ void Renderer::render()
 	FLOAT f[4] = { 0.678f, 0.847f, 0.902f, 1 };
 	m_deviceContext->ClearRenderTargetView(m_renderTarget, f);
 
-	//m_material->begin();
-	//m_material->render();
-	//m_material->end();
+	XMMATRIX world = XMMatrixIdentity();
+
+	m_material->begin();
+	m_material->render(world, *m_model);
+	m_material->end();
 
 	m_swapChain->Present(0, 0);
 }
