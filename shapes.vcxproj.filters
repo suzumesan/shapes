@@ -29,6 +29,7 @@
     <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\irenderer.h" />
     <ClInclude Include="src\simple_material.h" />
+    <ClInclude Include="src\model.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\imgui\imgui.cpp">
@@ -45,5 +46,6 @@
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\simple_material.cpp" />
+    <ClCompile Include="src\model.cpp" />
   </ItemGroup>
 </Project>

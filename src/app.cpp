@@ -57,5 +57,7 @@ void App::update()
 				break;
 			}
 		}
+
+		m_renderer->render();
 	}
 }

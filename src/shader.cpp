@@ -1,7 +1,5 @@
 #include "shader.h"
 
-#include <d3d11.h>
-#include <d3dcompiler.h>
 #include <cmath>
 
 namespace
@@ -51,7 +49,7 @@ namespace
 
 	static constexpr bool DEBUG_COMPILE = false;
 	static constexpr bool DEBUG_WARNING_AS_ERROR = false;
-	static constexpr size_t INPUT_ELEMENT_DESC_SIZE = 8;
+	static constexpr size_t INPUT_ELEMENT_DESC_MAX_SIZE = 8;
 	static const FormatFactory s_formatFactory;
 
 	ID3DBlob* compileShader(
@@ -89,26 +87,60 @@ namespace
 }
 
 
-void Shader::compileVS(const std::wstring& path)
+ID3D11VertexShader* Shader::compileVS(const std::wstring& path, ID3DBlob** outVSBuffer /* = nullptr */)
 {
 	static const char entryPoint[] = "main";
 	static const char target[] = "vs_5_0";
 	ID3DBlob* blob = compileShader(path + L".vs", entryPoint, target);
+	ID3D11VertexShader* output = nullptr;
 	auto hr = m_device->CreateVertexShader(
 		blob->GetBufferPointer(),
 		blob->GetBufferSize(),
 		nullptr,
-		&m_vs);
+		&output);
 
+	if (outVSBuffer)
+		*outVSBuffer = blob;
+	else
+		blob->Release();
+
+	return output;
+}
+
+ID3D11PixelShader* Shader::compilePS(const std::wstring& path, ID3DBlob** outPSBuffer /* = nullptr */)
+{
+	static const char entryPoint[] = "main";
+	static const char target[] = "ps_5_0";
+	ID3DBlob* blob = compileShader(path + L".ps", entryPoint, target);
+	ID3D11PixelShader* ps = nullptr;
+	auto hr = m_device->CreatePixelShader(
+		blob->GetBufferPointer(),
+		blob->GetBufferSize(),
+		nullptr,
+		&ps);
+
+	if (outPSBuffer)
+		*outPSBuffer = blob;
+	else
+		blob->Release();
+	return ps;
+}
+
+ID3D11ShaderReflection* Shader::createReflection(ID3DBlob* shaderBuffer)
+{
 	ID3D11ShaderReflection* reflector = nullptr;
-	hr = D3DReflect(blob->GetBufferPointer(), blob->GetBufferSize(),
+	D3DReflect(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(),
 		IID_ID3D11ShaderReflection, (void**)&reflector);
+	return reflector;
+}
 
+ID3D11InputLayout* Shader::createInputLayout(ID3D11ShaderReflection* reflector, ID3DBlob* vsBuffer)
+{
 	D3D11_SHADER_DESC shaderDesc;
 	reflector->GetDesc(&shaderDesc);
 
 	const UINT elementCount = shaderDesc.InputParameters;
-	D3D11_INPUT_ELEMENT_DESC elementDescArr[INPUT_ELEMENT_DESC_SIZE];
+	D3D11_INPUT_ELEMENT_DESC elementDescArr[INPUT_ELEMENT_DESC_MAX_SIZE];
 	UINT alignedTotalOffset = 0;
 
 	for (UINT paramIdx = 0; paramIdx < elementCount; ++paramIdx)
@@ -128,65 +160,28 @@ void Shader::compileVS(const std::wstring& path)
 		alignedTotalOffset += s_formatFactory.getSizeForDesc(signature);
 	}
 
-	hr = m_device->CreateInputLayout(
+	ID3D11InputLayout* inputLayout = nullptr;
+	 m_device->CreateInputLayout(
 		elementDescArr,
 		elementCount,
-		blob->GetBufferPointer(),
-		blob->GetBufferSize(),
-		&m_il
+		vsBuffer->GetBufferPointer(),
+		vsBuffer->GetBufferSize(),
+		&inputLayout
 	);
 
-	reflector->Release();
-	blob->Release();
+	 
+
+	 return inputLayout;
 }
 
-void Shader::compilePS(const std::wstring& path)
-{
-	static const char entryPoint[] = "main";
-	static const char target[] = "ps_5_0";
-	ID3DBlob* blob = compileShader(path + L".ps", entryPoint, target);
-	auto hr = m_device->CreatePixelShader(
-		blob->GetBufferPointer(),
-		blob->GetBufferSize(),
-		nullptr,
-		&m_ps);
-
-	blob->Release();
-}
-
-Shader::Shader(ID3D11Device* device) :
+Shader::Shader(ID3D11Device* device, ID3D11DeviceContext* deviceContext) :
 	m_device(device),
-	m_vs(nullptr),
-	m_ps(nullptr),
-	m_il(nullptr)
+	m_deviceContext(deviceContext)
 {
 }
 
 Shader::~Shader()
 {
 	m_device = nullptr;
-
-	if (m_vs)
-	{
-		m_vs->Release();
-		m_vs = nullptr;
-	}
-
-	if (m_ps)
-	{
-		m_ps->Release();
-		m_ps = nullptr;
-	}
-
-	if (m_il)
-	{
-		m_il->Release();
-		m_il = nullptr;
-	}
-}
-
-void Shader::compile(const std::wstring& path)
-{
-	compileVS(path);
-	compilePS(path);
+	m_deviceContext = nullptr;
 }

@@ -3,7 +3,7 @@
 class Renderer;
 struct SDL_Window;
 
-class App
+class App final
 {
 	Renderer* m_renderer;
 	SDL_Window* m_window;

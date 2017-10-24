@@ -12,6 +12,7 @@ class Renderer final : public IRenderer
 	ID3D11RenderTargetView* m_renderTarget;
 
 	SimpleMaterial* m_material;
+	Model* m_model;
 
 public:
 	Renderer();

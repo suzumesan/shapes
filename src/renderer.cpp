@@ -51,7 +51,9 @@ Renderer::Renderer() :
 	m_device(nullptr),
 	m_swapChain(nullptr),
 	m_deviceContext(nullptr),
-	m_renderTarget(nullptr)
+	m_renderTarget(nullptr),
+	m_material(nullptr),
+	m_model(nullptr)
 {
 
 }
@@ -92,11 +94,20 @@ void Renderer::create(HWND handle)
 	SetDefaultViewport(m_deviceContext);
 	SetDefaultRasterSettings(m_device, m_deviceContext);
 
-	m_material = new SimpleMaterial(m_device);
+	m_material = new SimpleMaterial(m_device, m_deviceContext);
+
+	m_model = new Model(m_device);
+	m_model->load("content/bun_zipper.ply");
 }
 
 void Renderer::cleanup()
 {
+	if (m_model)
+	{
+		delete m_model;
+		m_model = nullptr;
+	}
+
 	if (m_material)
 	{
 		delete m_material;
@@ -132,5 +143,10 @@ void Renderer::render()
 {
 	FLOAT f[4] = { 0.678f, 0.847f, 0.902f, 1 };
 	m_deviceContext->ClearRenderTargetView(m_renderTarget, f);
+
+	//m_material->begin();
+	//m_material->render();
+	//m_material->end();
+
 	m_swapChain->Present(0, 0);
 }
