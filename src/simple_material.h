@@ -11,7 +11,7 @@ class SimpleMaterial : public Shader
 	ID3D11Buffer* m_cb;
 
 public:
-	SimpleMaterial(ID3D11Device* device, ID3D11DeviceContext* deviceCtx);
+	SimpleMaterial(RenderDevice_SPtr& rd);
 
 	void begin();
 	void render(const DirectX::XMMATRIX& worldMat, const Model& model);

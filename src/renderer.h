@@ -2,6 +2,7 @@
 #include <DirectXMath.h>
 #include "irenderer.h"
 #include "simple_material.h"
+#include "render_device.h"
 
 
 class Renderer final : public IRenderer
@@ -11,6 +12,7 @@ class Renderer final : public IRenderer
 	ID3D11DeviceContext* m_deviceContext;
 	ID3D11RenderTargetView* m_renderTarget;
 
+	RenderDevice_SPtr m_rd;
 	SimpleMaterial* m_material;
 	Model* m_model;
 

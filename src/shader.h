@@ -2,11 +2,11 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <string>
+#include "render_device.h"
 
 class Shader
 {
-	ID3D11Device* m_device;
-	ID3D11DeviceContext* m_deviceContext;
+	RenderDevice_SPtr m_rd;
 
 protected:
 	ID3D11VertexShader* compileVS(const std::wstring& path, ID3DBlob** outVSBuffer = nullptr);
@@ -15,9 +15,10 @@ protected:
 	ID3D11InputLayout* createInputLayout(ID3D11ShaderReflection* reflector, ID3DBlob* vsBuffer);
 
 public:
-	Shader(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	Shader(RenderDevice_SPtr& rd);
 	virtual ~Shader();
 
-	ID3D11Device* device() { return m_device; }
-	ID3D11DeviceContext* deviceContext() { return m_deviceContext; }
+	ID3D11Device* device() { return m_rd->device(); }
+	ID3D11DeviceContext* deviceContext() { return m_rd->deviceCtx(); }
+	RenderDevice_SPtr rd() { return m_rd; }
 };

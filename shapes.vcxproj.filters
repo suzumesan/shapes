@@ -30,6 +30,7 @@
     <ClInclude Include="src\irenderer.h" />
     <ClInclude Include="src\simple_material.h" />
     <ClInclude Include="src\model.h" />
+    <ClInclude Include="src\render_device.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\imgui\imgui.cpp">
@@ -47,5 +48,6 @@
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\simple_material.cpp" />
     <ClCompile Include="src\model.cpp" />
+    <ClCompile Include="src\render_device.cpp" />
   </ItemGroup>
 </Project>

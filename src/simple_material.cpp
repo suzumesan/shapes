@@ -12,8 +12,8 @@ namespace
 	};
 }
 
-SimpleMaterial::SimpleMaterial(ID3D11Device* device, ID3D11DeviceContext* deviceCtx) :
-	Shader(device, deviceCtx),
+SimpleMaterial::SimpleMaterial(RenderDevice_SPtr& rd) :
+	Shader(rd),
 	m_vs(nullptr),
 	m_ps(nullptr),
 	m_il(nullptr),
@@ -58,7 +58,7 @@ void SimpleMaterial::begin()
 	devCtx->VSSetConstantBuffers(0, 1, &m_cb);
 }
 
-void SimpleMaterial::render(const DirectX::XMMATRIX& worldMat, const Model& model)
+void SimpleMaterial::render(const XMMATRIX& worldMat, const Model& model)
 {
 	ID3D11DeviceContext* devCtx = deviceContext();
 	ID3D11Buffer* vb = model.vb();

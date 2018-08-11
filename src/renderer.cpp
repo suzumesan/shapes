@@ -54,6 +54,7 @@ Renderer::Renderer() :
 	m_swapChain(nullptr),
 	m_deviceContext(nullptr),
 	m_renderTarget(nullptr),
+	m_rd(nullptr),
 	m_material(nullptr),
 	m_model(nullptr)
 {
@@ -96,7 +97,9 @@ void Renderer::create(HWND handle)
 	SetDefaultViewport(m_deviceContext);
 	SetDefaultRasterSettings(m_device, m_deviceContext);
 
-	m_material = new SimpleMaterial(m_device, m_deviceContext);
+	m_rd.reset(new RenderDevice(m_device, m_deviceContext));
+
+	m_material = new SimpleMaterial(m_rd);
 
 	m_model = new Model(m_device);
 	m_model->load("content/bun_zipper.ply");

@@ -189,6 +189,7 @@ xcopy /Y /D "libs\bin\*.dll" "bin\x64_Release"</Command>
     <ClInclude Include="src\app.h" />
     <ClInclude Include="src\irenderer.h" />
     <ClInclude Include="src\model.h" />
+    <ClInclude Include="src\render_device.h" />
     <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
@@ -203,6 +204,7 @@ xcopy /Y /D "libs\bin\*.dll" "bin\x64_Release"</Command>
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\model.cpp" />
     <ClCompile Include="src\renderer.cpp" />
+    <ClCompile Include="src\render_device.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />

@@ -93,7 +93,7 @@ ID3D11VertexShader* Shader::compileVS(const std::wstring& path, ID3DBlob** outVS
 	static const char target[] = "vs_5_0";
 	ID3DBlob* blob = compileShader(path + L".vs", entryPoint, target);
 	ID3D11VertexShader* output = nullptr;
-	auto hr = m_device->CreateVertexShader(
+	auto hr = device()->CreateVertexShader(
 		blob->GetBufferPointer(),
 		blob->GetBufferSize(),
 		nullptr,
@@ -113,7 +113,7 @@ ID3D11PixelShader* Shader::compilePS(const std::wstring& path, ID3DBlob** outPSB
 	static const char target[] = "ps_5_0";
 	ID3DBlob* blob = compileShader(path + L".ps", entryPoint, target);
 	ID3D11PixelShader* ps = nullptr;
-	auto hr = m_device->CreatePixelShader(
+	auto hr = device()->CreatePixelShader(
 		blob->GetBufferPointer(),
 		blob->GetBufferSize(),
 		nullptr,
@@ -161,7 +161,7 @@ ID3D11InputLayout* Shader::createInputLayout(ID3D11ShaderReflection* reflector, 
 	}
 
 	ID3D11InputLayout* inputLayout = nullptr;
-	 m_device->CreateInputLayout(
+	device()->CreateInputLayout(
 		elementDescArr,
 		elementCount,
 		vsBuffer->GetBufferPointer(),
@@ -174,14 +174,12 @@ ID3D11InputLayout* Shader::createInputLayout(ID3D11ShaderReflection* reflector, 
 	 return inputLayout;
 }
 
-Shader::Shader(ID3D11Device* device, ID3D11DeviceContext* deviceContext) :
-	m_device(device),
-	m_deviceContext(deviceContext)
+Shader::Shader(RenderDevice_SPtr& rd) :
+	m_rd(rd)
 {
 }
 
 Shader::~Shader()
 {
-	m_device = nullptr;
-	m_deviceContext = nullptr;
+	m_rd = nullptr;
 }
