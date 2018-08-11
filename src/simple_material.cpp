@@ -39,7 +39,7 @@ SimpleMaterial::SimpleMaterial(RenderDevice_SPtr& rd) :
 	constBufferDesc.MiscFlags = 0;
 	constBufferDesc.StructureByteStride = 0;
 
-	device->CreateBuffer(
+	device()->CreateBuffer(
 		&constBufferDesc,
 		nullptr,
 		&m_cb);
