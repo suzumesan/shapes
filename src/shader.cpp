@@ -52,6 +52,12 @@ namespace
 	static constexpr size_t INPUT_ELEMENT_DESC_MAX_SIZE = 8;
 	static const FormatFactory s_formatFactory;
 
+	static const char* VS_ENTRY_POINT = "VSMain";
+	static const char* VS_TARGET = "vs_5_0";
+	static const char* PS_ENTRY_POINT = "PSMain";
+	static const char* PS_TARGET = "ps_5_0";
+	static const wchar_t* FILE_EXTENSION = L".hlsl";
+
 	ID3DBlob* compileShader(
 		const std::wstring& path,
 		const char* entryPoint,
@@ -67,7 +73,7 @@ namespace
 		HRESULT hr = D3DCompileFromFile(
 			path.c_str(),
 			nullptr,
-			nullptr,
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,
 			entryPoint,
 			target,
 			flags,
@@ -89,9 +95,9 @@ namespace
 
 ID3D11VertexShader* Shader::compileVS(const std::wstring& path, ID3DBlob** outVSBuffer /* = nullptr */)
 {
-	static const char entryPoint[] = "main";
-	static const char target[] = "vs_5_0";
-	ID3DBlob* blob = compileShader(path + L".vs", entryPoint, target);
+	ID3DBlob* blob = compileShader(path + FILE_EXTENSION, 
+		VS_ENTRY_POINT,
+		VS_TARGET);
 	ID3D11VertexShader* output = nullptr;
 	auto hr = device()->CreateVertexShader(
 		blob->GetBufferPointer(),
@@ -109,9 +115,9 @@ ID3D11VertexShader* Shader::compileVS(const std::wstring& path, ID3DBlob** outVS
 
 ID3D11PixelShader* Shader::compilePS(const std::wstring& path, ID3DBlob** outPSBuffer /* = nullptr */)
 {
-	static const char entryPoint[] = "main";
-	static const char target[] = "ps_5_0";
-	ID3DBlob* blob = compileShader(path + L".ps", entryPoint, target);
+	ID3DBlob* blob = compileShader(path + FILE_EXTENSION,
+		PS_ENTRY_POINT, 
+		PS_TARGET);
 	ID3D11PixelShader* ps = nullptr;
 	auto hr = device()->CreatePixelShader(
 		blob->GetBufferPointer(),
@@ -169,9 +175,25 @@ ID3D11InputLayout* Shader::createInputLayout(ID3D11ShaderReflection* reflector, 
 		&inputLayout
 	);
 
-	 
-
 	 return inputLayout;
+}
+
+ID3D11Buffer* Shader::createConstantBuffer(UINT bufferSize)
+{
+	D3D11_BUFFER_DESC constBufferDesc;
+	constBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	constBufferDesc.ByteWidth = bufferSize;
+	constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constBufferDesc.MiscFlags = 0;
+	constBufferDesc.StructureByteStride = 0;
+
+	ID3D11Buffer* constantBuffer;
+	device()->CreateBuffer(
+		&constBufferDesc,
+		nullptr,
+		&constantBuffer);
+	return constantBuffer;
 }
 
 Shader::Shader(RenderDevice_SPtr& rd) :

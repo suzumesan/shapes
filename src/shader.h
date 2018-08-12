@@ -13,6 +13,7 @@ protected:
 	ID3D11PixelShader* compilePS(const std::wstring& path, ID3DBlob** outPSBuffer = nullptr);
 	ID3D11ShaderReflection* createReflection(ID3DBlob* shaderBuffer);
 	ID3D11InputLayout* createInputLayout(ID3D11ShaderReflection* reflector, ID3DBlob* vsBuffer);
+	ID3D11Buffer* createConstantBuffer(UINT bufferSize);
 
 public:
 	Shader(RenderDevice_SPtr& rd);

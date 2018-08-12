@@ -71,6 +71,9 @@ void Renderer::create(HWND handle)
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = GetSwapChainDesc(handle);
 
 	UINT flags = 0;
+#ifdef DEBUG
+	flags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
 	const size_t levelCount = 1;
 	D3D_FEATURE_LEVEL level = D3D_FEATURE_LEVEL_11_0;
 	D3D_FEATURE_LEVEL supportedLevels;
@@ -149,10 +152,17 @@ void Renderer::render()
 	FLOAT f[4] = { 0.678f, 0.847f, 0.902f, 1 };
 	m_deviceContext->ClearRenderTargetView(m_renderTarget, f);
 
-	XMMATRIX world = XMMatrixIdentity();
+	XMFLOAT3 eyeF3{ 0, 0, -1 };
+	XMFLOAT3 lookAtF3{ 0, 0, 0 };
+	XMFLOAT3 upF3{ 0, 1, 0 };
+	XMMATRIX cameraView = XMMatrixLookAtLH(XMLoadFloat3(&eyeF3), XMLoadFloat3(&lookAtF3), XMLoadFloat3(&upF3));
+	XMMATRIX cameraProj = XMMatrixPerspectiveFovLH(XMConvertToRadians(40), 4.0f / 3.0f, 1.0f, 10.0f);
+	XMMATRIX cameraVP = XMMatrixMultiply(cameraView, cameraProj);
+	m_material->begin(cameraVP);
 
-	m_material->begin();
+	XMMATRIX world = XMMatrixIdentity();
 	m_material->render(world, *m_model);
+
 	m_material->end();
 
 	m_swapChain->Present(0, 0);
